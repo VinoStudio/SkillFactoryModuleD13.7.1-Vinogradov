@@ -1,0 +1,144 @@
+{% extends 'base/default.html' %}
+{% load static %}
+{% load hitcount_tags %}
+
+{% block content %}
+<div class="col-12 post border border-dark rounded-3">
+    <div class="container">
+        <div class="row-auto d-flex pb-3">
+            <a href="{% url 'table:categories' post.postCategory.name %}" class="btn btn-dark d-flex align-items-center">#{{ post.postCategory.name }}</a>
+            <div class="col-auto">
+                <div class="d-flex align-items-center nav-text">{{ post.author.userAuthor}}</div>
+                <div class="d-flex align-items-center time-text">{{ post.postDate|date:'d.m.Y'}}</div>
+            </div>
+            <div title="Рейтинг пользователя" class="d-flex pe-2 ps-2 align-items-center nav-text">
+                <span class="bi bi-stars" style="color: darkgray; width: 22px; font-size: 23px"></span>
+                {{ post.author.userRating }}
+            </div>
+            {% if user.is_authenticated %}
+                {% if subscriber %}
+                    <form action="{% url 'table:unsubscribe' post.postCategory.name %}" class="ms-auto" method="Post">
+                        {% csrf_token %}
+                        <input type='submit' class="btn btn-dark" value="Отписаться">
+                    </form>
+                {% else %}
+                      <form action="{% url 'table:subscribe' post.postCategory.name %}" class="ms-auto" method="Post">
+                        {% csrf_token %}
+                        <input type='submit' class="btn btn-dark" value="Подписаться">
+                      </form>
+                {% endif %}
+                {% include 'parts/nav_bar.html' %}
+            {% else %}
+                <a href="{% url 'account_login' %}" class="ms-auto btn btn-dark">Подписаться</a>
+            {% endif %}
+        </div>
+        <div class="row-auto d-flex pb-2">
+            <a class="post-title link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.title }}</a>
+        </div>
+        {% if post.description %}
+            <div class="row-auto d-flex">
+                <a class="post-text link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.description }}</a>
+            </div>
+        {% endif %}
+    </div>
+    <img src="{{ post.preview_image.url }}" class="img-fluid" alt="">
+    <div class="row-auto p-3">
+        <p>{{ post.text|safe }}</p>
+    </div>
+    <div class="container">
+        <div class="row-auto d-flex pt-3 pb-2" id="info_menu">
+        {% if post.author.userAuthor != user %}
+            {% if user in post.likedUser.all %}
+                <a class="btn btn-dark" href="{% url 'table:dislike' post.id %}">
+                    <span class="bi bi-heart-fill" style="width: 10px"></span>
+                    {{ post.postRating }}
+                </a>
+            {% else %}
+                <a class="btn btn-dark d-flex flex-nowrap align-items-center" href="{% url 'table:like' post.id %}">
+                   <span class="pe-1 bi bi-heart"></span>{{ post.postRating }}
+                </a>
+            {% endif %}
+        {% else %}
+            <div class="d-flex pe-2 ps-2 align-items-center nav-text">
+                <span class="bi bi-person-hearts" style="color: darkgray; width: 20px; font-size: 18px"></span>
+                {{ post.postRating }}
+            </div>
+        {% endif %}
+            <div class="d-flex pe-1 align-items-center nav-text">
+                <span class="pe-1 bi bi-chat-square-text"></span>
+                {{ post.comments.all|length }}
+            </div>
+            <div class="d-flex align-items-center nav-text">
+                <span class="bi bi-eye" style="color: darkgray; width: 21px; font-size: 18px"></span>
+                {% get_hit_count for post %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 post border border-dark rounded-3 mt-4">
+    <div class="container">
+        <div class="post-text mt-2 mb-3">{{ post.comments.all|length }} Комментариев</div>
+        {% if user.is_authenticated %}
+            <form method="POST" action='' enctype="multipart/form-data">
+        {% else %}
+            <form method="" action='{% url 'account_login' %}'>
+        {% endif %}
+            {% csrf_token %}
+            <div class="row-12 comment-area p-1 d-flex flex-wrap">
+                {{ form.text }}
+                <label for="id_comment_image">
+                    <span class="bi bi-file-earmark-image ps-2 d-flex align-items-center" style="color: darkgray; font-size: 20px; opacity: 60%">
+                        {{ form.comment_image }}
+                    </span>
+                </label>
+                <input class="ms-auto btn btn-dark btn-sm" style="" type="submit">
+            </div>
+        </form>
+        {% for comment in post.comments.all %}
+            <div class="row-auto d-flex pb-2 mt-2">
+                <div class="col-auto">
+                    <div class="d-flex align-items-center nav-text">{{ comment.author.userAuthor }}</div>
+                    <div class="ms-auto d-flex align-items-center time-text">{{ comment.commentDate|date:'d.m в m.i' }}</div>
+                </div>
+                <div title="Рейтинг пользователя" class="d-flex pe-2 ps-2 align-items-center nav-text">
+                    <span class="bi bi-stars" style="color: darkgray; width: 22px; font-size: 23px"></span>
+                    {{ comment.author.userRating }}
+                </div>
+                <div class="row-auto ms-auto d-flex flex-nowrap">
+                    {% if comment.approved %}
+                        <span title="Одобрена автором" class="bi bi-bookmark-check-fill" style="width: 25px; font-size: 20px; opacity: 65%; color: #C9CCCD"></span>
+                    {% endif %}
+                    {% include 'parts/response_nav.html' %}
+                </div>
+            </div>
+            <div class="row-auto ps-2 pt-2 d-flex">
+                <p class="post-text">{{ comment.text }}</p>
+            </div>
+            {% if comment.comment_image %}
+                <img src="{{ comment.comment_image.url }}" style="max-height: 400px; max-width: 70%;"  class="ps-2 img-fluid rounded-4" alt="">
+            {% endif %}
+            <div class="row-auto d-flex flex-wrap align-items-center">
+            {% if user not in comment.likedUser.all and user != comment.author.userAuthor%}
+                <a href="{% url 'table:comment_like' comment.id %}" class="nav-text d-flex link-underline-dark align-items-center">
+                   <span class="bi bi-plus" style="color: darkgray; width: 17px; font-size: 20px"></span>{{ comment.responseRating }}
+                </a>
+            {% else %}
+                <div class="nav-text d-flex link-underline-dark align-items-center">
+                   <span class="bi bi-plus" style="color: darkgray; width: 17px; font-size: 20px"></span>{{ comment.responseRating }}
+                </div>
+            {% endif %}
+            {% if not comment.approved and comment.author.userAuthor.id != request.user.id and post.author.userAuthor.id == request.user.id %}
+                <a class="nav-text ms-auto" href="{% url 'table:approve' comment.id %}">Одобрить</a>
+            {% endif %}
+            </div>
+        {% empty %}
+            <div class="row-auto d-flex pb-3 justify-content-center mt-3">
+                <div class="d-flex align-items-center nav-text">Пока нет комментариев</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock content %}

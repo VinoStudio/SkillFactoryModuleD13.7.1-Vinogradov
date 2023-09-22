@@ -1,0 +1,219 @@
+{% load static %}
+{% load widget_tweaks %}
+{% load hitcount_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block site %} {% endblock site %}</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/product/">
+
+
+
+    <!-- Bootstrap core CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+      <!-- Bootstrap icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/mmo.css' %}" rel="stylesheet">
+  </head>
+    <body>
+        <header class="site-header sticky-top py-1">
+            <div class="container">
+              <nav class="d-flex justify-content-center row p-2 row">
+                  <a href="{% url 'table:posts' %}" class="col-3 d-flex nav-text justify-content-center align-self-center link link-underline-dark">Название</a>
+                  <div class="col-6 d-flex nav-text justify-content-center align-self-center">
+                      <form name="search" class="w-100" method="get" action="{% url 'table:search' %}">
+                          {% csrf_token %}
+                          {% render_field filter.form.title class='form-control w-100' style='background-color: #1E1E1E; color: white;' placeholder='Введите поисковой запрос' %}
+                      </form>
+                  </div>
+                  <div class="col-3 d-flex nav-text justify-content-center">
+                  {% if user.is_authenticated %}
+                        <span class="nav-text, d-flex align-self-center p-2">{{ user.username }},</span>
+                        <a href="{% url 'account_logout' %}" class="py-2 nav-text link-underline-secondary link-opacity-0 link-underline-opacity-0 link-underline-opacity-75-hover">Выйти?</a>
+
+                  {% else %}
+                        <a class="d-flex align-items-center link link-underline-dark nav-text" href="{% url 'account_login' %}">Войти</a>
+                  {% endif %}
+              </nav>
+            </div>
+        </header>
+        <main>
+            <div class="container">
+                <div class="row d-flex justify-content-center flex-nowrap py-2">
+                    <div class="col-3" id="side_bar">
+                        <div class="vstack d-flex position-sticky gap-3 align-items-end">
+                            <a id="popular" href="{% url 'table:popular' %}" style="width: 65%" class="btn btn-dark d-flex justify-content-start align-items-center post-text">
+                                <span class="bi bi-fire pe-2" style=" width: 25px; font-size: 20px; opacity: 65%; color: #C9CCCD"></span>
+                                Популярное
+                            </a>
+                            <a id="subscribtion" href=
+                                {% if user.is_authenticated  %}
+                                    "{% url 'table:subscription' %}"
+                                {% else %}
+                                    "{% url 'account_login' %}"
+                                {% endif %}
+                               style="width: 65%" class="btn btn-dark d-flex justify-content-start post-text">
+                                <span class="bi bi-hearts pe-2" style=" width: 25px; font-size: 20px; opacity: 65%; color: #C9CCCD"></span>
+                                Подписки
+                            </a>
+                            <a id="profile" href=
+                               {% if user.is_authenticated  %}
+                                   "{% url 'table:user_comments' %}"
+                                {% else %}
+                                    "{% url 'account_login' %}"
+                                {% endif %}
+                               style="width: 65%" class="btn btn-dark d-flex justify-content-start post-text">
+                                <span class="profile bi bi-file-earmark-person pe-2" style=" width: 25px; font-size: 20px; opacity: 65%; color: #C9CCCD"></span>
+                                Моя активность
+                            </a>
+                            <a href=
+                               {% if user.is_authenticated  %}
+                                   "{% url 'table:create' %}"
+                               {% else %}
+                                   "{% url 'account_login' %}"
+                               {% endif %}
+                               style="width: 60%" class="btn btn-primary mt-4 post-text">Добавить пост
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-6 d-flex flex-column">
+                        {% block content %}
+                            {% for post in posts %}
+                                <div class="col-12 mb-3 post border border-dark rounded-3 d-flex flex-column">
+                                    <div class="container">
+                                        <div class="row-auto d-flex pb-3">
+                                            <a href="{% url 'table:categories' post.postCategory.name %}" class="btn btn-dark d-flex align-items-center">#{{ post.postCategory.name }}</a>
+                                            <div class="col-auto">
+                                                <div class="d-flex align-items-center nav-text">{{ post.author.userAuthor}}</div>
+                                                <div class="d-flex align-items-center time-text">{{ post.postDate|date:'d.m.Y'}}</div>
+                                            </div>
+                                            <div title="Рейтинг пользователя" class="d-flex pe-2 ps-2 align-items-center nav-text">
+                                                <span class="bi bi-stars" style="color: darkgray; width: 22px; font-size: 23px"></span>
+                                                {{ post.author.userRating }}
+                                            </div>
+                                            {% if user.is_authenticated %}
+                                                {% if subscriber %}
+                                                    <form action="{% url 'table:unsubscribe' post.postCategory.name %}" class="ms-auto" method="Post">
+                                                        {% csrf_token %}
+                                                        <input type='submit' class="btn btn-dark" value="Отписаться">
+                                                    </form>
+                                                {% else %}
+                                                      <form action="{% url 'table:subscribe' post.postCategory.name %}" class="ms-auto" method="Post">
+                                                        {% csrf_token %}
+                                                        <input type='submit' class="btn btn-dark" value="Подписаться">
+                                                      </form>
+                                                {% endif %}
+                                                {% include 'parts/nav_bar.html' %}
+                                            {% else %}
+                                                <a href="{% url 'account_login' %}" class="ms-auto btn btn-dark">Подписаться</a>
+                                            {% endif %}
+                                        </div>
+                                    <div class="row-auto d-flex pb-2">
+                                        <a class="post-title link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.title }}</a>
+                                    </div>
+                                    {% if post.description %}
+                                        <div class="row-auto d-flex">
+                                            <a class="post-text link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.description }}</a>
+                                        </div>
+                                    {% endif %}
+                                    </div>
+                                    <img src="{{ post.preview_image.url }}" class="img-fluid" alt="">
+                                    <div class="container">
+                                        <div class="row-auto d-flex pt-3 pb-2" id="info_menu">
+                                        {% if post.author.userAuthor != user %}
+                                            {% if user in post.likedUser.all %}
+                                                <a class="btn btn-dark" href="{% url 'table:dislike' post.id %}">
+                                                    <span class="bi bi-heart-fill" style="width: 10px"></span>
+                                                    {{ post.postRating }}
+                                                </a>
+                                            {% else %}
+                                                <a class="btn btn-dark d-flex flex-nowrap align-items-center" href="{% url 'table:like' post.id %}">
+                                                   <span class="pe-1 bi bi-heart"></span>{{ post.postRating }}
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="d-flex pe-2 ps-2 align-items-center nav-text">
+                                                <span class="bi bi-person-hearts" style="color: darkgray; width: 20px; font-size: 18px"></span>
+                                                {{ post.postRating }}
+                                            </div>
+                                        {% endif %}
+                                            <div class="d-flex align-items-center nav-text">
+                                                <span class="pe-1 bi bi-chat-square-text"></span>
+                                                {{ post.comments.all|length }}
+                                            </div>
+                                            <div class="d-flex align-items-center nav-text ps-2">
+                                                <span class="bi bi-eye" style="color: darkgray; width: 21px; font-size: 18px"></span>
+                                                {% get_hit_count for post %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% empty %}
+                                <div class="text-primary">
+                                    Постов не найдено!
+                                </div>
+                            {% endfor %}
+                        {% endblock content %}
+                    <div class="row-auto d-flex flex-nowrap justify-content-center align-items-center">
+                        {% include 'parts/paginator.html' %}
+                    </div>
+                    </div>
+                    <div class="col-3 messages d-flex flex-column justify-content-start border border-dark rounded-3">
+                        <div class="container">
+                            <span class="post-text">Последние комментарии:</span>
+                            {% for comment in comments %}
+                                <div class="row-auto d-flex pb-2 mt-1 flex-column">
+                                    <div class="row-12 d-flex flex-nowrap justify-content-start">
+                                        <div class="d-flex align-items-center comment-title">{{ comment.author.userAuthor }}</div>
+                                        <div class="comment-stuff f-flex ps-2" style="opacity: 70%"> к посту:</div>
+                                    </div>
+                                    <div class="row-auto d-flex flex-column align-items-start pl-3">
+                                        <a href="{% url 'table:post' comment.post_id.id %}" class="d-flex align-items-center comment-title">{{ comment.post_id.title|truncatewords:5 }}</a>
+                                    </div>
+                                </div>
+                                <div class="row-auto d-flex p-2">
+                                    <p class="post-text">{{ comment.text }}</p>
+                                </div>
+                            {% empty %}
+                                <div class="row-auto d-flex">
+                                        <p class="post-text">Пока нет комментариев</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bootstrap js -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="{% static 'js/scripts.js' %}"></script>
+        <script>
+            {% block scripts %}
+            {% endblock scripts %}
+        </script>
+    </body>
+</html>

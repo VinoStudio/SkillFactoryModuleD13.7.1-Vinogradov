@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ваш отклик принят</title>
+</head>
+<body>
+    <h1>Ваш комментарий одобрен автором!</h1>
+    <a href="http://127.0.0.1:8000/{{ comment.post_id.id }}">Ваш отклик на объявление {{ comment.post_id.title }}:</a>
+    <p>Принят автором поста {{ comment.post_id.author.userAuthor.username }}.</p>
+</body>
+</html>

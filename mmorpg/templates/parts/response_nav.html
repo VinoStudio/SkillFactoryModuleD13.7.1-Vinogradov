@@ -1,0 +1,10 @@
+{% if comment.author.userAuthor.id == request.user.id %}
+
+<div class="dropdown ms-auto">
+    <a class="btn btn-sm btn-dark rounded-circle dropdown-toggle" id="navDropdown1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
+    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+        <li><a class="dropdown-item" href="{% url 'table:delete_response' comment.id %}">Удалить</a></li>
+    </ul>
+</div>
+
+{% endif %}

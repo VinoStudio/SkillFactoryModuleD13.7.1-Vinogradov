@@ -1,0 +1,87 @@
+{% extends 'base/default.html' %}
+{% load static %}
+{% load hitcount_tags %}
+
+{% block content %}
+{% for post in user_subs %}
+    <div class="col-12 mb-3 post border border-dark rounded-3 d-flex flex-column">
+        <div class="container">
+            <div class="row-auto d-flex pb-3">
+                <a href="{% url 'table:categories' post.postCategory.name %}" class="btn btn-dark d-flex align-items-center">#{{ post.postCategory.name }}</a>
+                <div class="col-auto">
+                    <div class="d-flex align-items-center nav-text">{{ post.author.userAuthor}}</div>
+                    <div class="d-flex align-items-center time-text">{{ post.postDate|date:'d.m.Y'}}</div>
+                </div>
+                <div title="Рейтинг пользователя" class="d-flex pe-2 ps-2 align-items-center nav-text">
+                    <span class="bi bi-stars" style="color: darkgray; width: 22px; font-size: 23px"></span>
+                    {{ post.author.userRating }}
+                </div>
+                {% if subscriber %}
+                    <form action="{% url 'table:unsubscribe' post.postCategory.name %}" class="ms-auto" method="Post">
+                        {% csrf_token %}
+                        <input type='submit' class="btn btn-dark" value="Отписаться">
+                    </form>
+                {% endif %}
+            {% include 'parts/nav_bar.html' %}
+            </div>
+        <div class="row-auto d-flex pb-2">
+            <a class="post-title link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.title }}</a>
+        </div>
+        {% if post.description %}
+            <div class="row-auto d-flex">
+                <a class="post-text link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' post.id %}">{{ post.description }}</a>
+            </div>
+        {% endif %}
+        </div>
+        <img src="{{ post.preview_image.url }}" class="img-fluid" alt="">
+        <div class="container">
+            <div class="row-auto d-flex pt-3 pb-2" id="info_menu">
+            {% if post.author.userAuthor != user %}
+                {% if user in post.likedUser.all %}
+                    <a class="btn btn-dark" href="{% url 'table:dislike' post.id %}">
+                        <span class="bi bi-heart-fill" style="width: 10px"></span>
+                        {{ post.postRating }}
+                    </a>
+                {% else %}
+                    <a class="btn btn-dark d-flex flex-nowrap align-items-center" href="{% url 'table:like' post.id %}">
+                       <span class="pe-1 bi bi-heart"></span>{{ post.postRating }}
+                    </a>
+                {% endif %}
+            {% else %}
+                <div class="d-flex pe-2 ps-2 align-items-center nav-text">
+                    <span class="bi bi-person-hearts" style="color: darkgray; width: 20px; font-size: 18px"></span>
+                    {{ post.postRating }}
+                </div>
+            {% endif %}
+                <div class="d-flex align-items-center nav-text">
+                    <span class="pe-1 bi bi-chat-square-text"></span>
+                    {{ post.comments.all|length }}
+                </div>
+                <div class="d-flex align-items-center nav-text ps-2">
+                    <span class="bi bi-eye" style="color: darkgray; width: 21px; font-size: 18px"></span>
+                    {% get_hit_count for post %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% empty %}
+<div class="col-12 h-25 mb-3 post border border-dark rounded-3 d-flex flex-column justify-content-center align-items-center">
+    <div class="container">
+        <div class="post-text d-flex justify-content-center align-self-center">
+            Постов не найдено!
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock content %}
+
+{% block scripts %}
+    var css = '#subscribtion { color: white; }';
+    var style = document.createElement('style');
+    if (style.styleSheet) {
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
+    document.getElementsByTagName('head')[0].appendChild(style);
+{% endblock scripts %}

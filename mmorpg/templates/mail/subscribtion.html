@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Уведомление о подписке!</title>
+</head>
+<body>
+    <h1>
+        Уведомление о подписке на категорию {{ category.name }}
+    </h1>
+    <p>
+        Здравствуйте, {{ user.username }}!
+    </p>
+    <p>
+        Вы успешно подписались на рассылку новых объявлении категории: "{{ category.name }}".
+    </p>
+    <a href="http://127.0.0.1:8000/subscription/">Посмотреть ваши подписки можете по этой ссылке</a>
+</body>
+</html>

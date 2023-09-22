@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Уведомление об отписке!</title>
+</head>
+<body>
+    <h1>
+        Уведомление об отписке категории: {{ category.name }}
+    </h1>
+    <p>
+        Здравствуйте, {{ user.username }}!
+    </p>
+    <p>
+        Вы успешно отписались от рассылки новых объявлении категории: "{{ category.name }}".
+    </p>
+    <a href="http://127.0.0.1:8000/subscription/">Посмотреть ваши подписки</a>
+</body>
+</html>

@@ -1,0 +1,71 @@
+{% extends 'base/default.html' %}
+{% load static %}
+{% load hitcount_tags %}
+
+{% block content %}
+<div class="col-12 d-flex justify-content-start p-2">
+    <div class="dropdown" id="drop_menu">
+        <a class="btn btn-sm btn-dark dropdown-toggle" id="navDropdown1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Отклики</a>
+        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="{% url 'table:user_comments' %}">Комментарии</a></li>
+            <li><a class="dropdown-item active" href="{{ request.path }}">Отклики</a></li>
+            <li><a class="dropdown-item" href="{% url 'table:author_post' %}">Посты</a></li>
+        </ul>
+    </div>
+</div>
+<div class="col-12 post border border-dark rounded-3">
+    <div class="container">
+        {% for comment in post_comments %}
+            <div class="row-auto d-flex pb-2 mt-2">
+                <div class="col-auto">
+                    <div class="d-flex align-items-center nav-text">{{ comment.author.userAuthor }}</div>
+                    <div class="ms-auto d-flex align-items-center time-text">{{ comment.commentDate|date:'d.m в m.i' }}</div>
+                </div>
+                <div class="col-auto nav-text ps-2">
+                    <div class="d-flex align-items-center nav-text">К посту:&nbsp;
+                        <a class="nav-text link link-underline-secondary" href="{% url 'table:post' comment.post_id.id %}">
+                            {{ comment.post_id.title|truncatewords:8 }}
+                        </a>
+                    </div>
+                </div>
+                {% if comment.approved %}
+                    <span title="Одобрена автором" class="bi bi-bookmark-check-fill ms-auto" style="width: 25px; font-size: 20px; opacity: 65%; color: #C9CCCD"></span>
+                {% endif %}
+            </div>
+            <div class="row-auto ps-2 pt-2 d-flex">
+                <p class="post-text">{{ comment.text }}</p>
+            </div>
+            {% if comment.comment_image %}
+                <img src="{{ comment.comment_image.url }}" style="max-height: 400px; max-width: 70%;"  class="ps-2 img-fluid border border-dark rounded-4" alt="">
+            {% endif %}
+            <div class="row-auto d-flex flex-wrap pt-2">
+                <div class="nav-text d-flex link-underline-dark align-items-center">
+                   <span class="bi bi-person-hearts" style="color: darkgray; width: 20px; font-size: 18px"></span>{{ comment.responseRating }}
+                </div>
+                {% if not comment.approved and comment.author.userAuthor.id != request.user.id and comment.post_id.author.userAuthor.id == request.user.id %}
+                    <a class="nav-text ms-auto" href="{% url 'table:approve' comment.id %}">Одобрить</a>
+                {% endif %}
+            </div>
+
+            <hr class="bg-light border-2 border-top border-light">
+        {% empty %}
+            <div class="row-auto d-flex align-items-center justify-content-center pb-3">
+                <div class="d-flex align-items-center justify-content-center nav-text">Пока нет откликов</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock content %}
+
+{% block scripts %}
+    var css = '#profile { color: white; }';
+    var style = document.createElement('style');
+    if (style.styleSheet) {
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
+    document.getElementsByTagName('head')[0].appendChild(style);
+{% endblock scripts %}

@@ -1,0 +1,19 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account socialaccount %}
+
+{% block content %}
+<form class="form-signin d-flex flex-column" method="POST" action="{% url 'account_login' %}">
+    {% csrf_token %}
+    <h1 class="h4 mb-3">Пожалуйста, войдите чтобы продолжить</h1>
+    {{ form.as_p }}
+    {% block check %}
+    <button class="btn btn-lg btn-primary btn-block mb-2" type="submit">Войти</button>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-lg btn-block" role="button">
+        Войти с Google
+    </a>
+    <a href="/accounts/signup/" class="mt-1">Не зарегистрированы?</a>
+    {% endblock check %}
+</form>
+{% endblock content %}

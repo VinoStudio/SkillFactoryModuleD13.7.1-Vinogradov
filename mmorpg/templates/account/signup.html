@@ -1,0 +1,20 @@
+{% extends "account/base.html" %}
+{% load socialaccount %}
+
+
+{% load i18n %}
+
+{% block head_title %}{% trans "Signup" %}{% endblock %}
+
+{% block content %}
+<h1 class="pb-1">{% trans "Регистрация" %}</h1>
+<form class="form-signin d-flex flex-column" id="signup_form" method="POST" action="{% url 'account_signup' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn btn-lg btn-primary btn-block mb-2" type="submit">Зарегистироваться</button>
+    <a href="{% provider_login_url 'google' %}" class="btn btn-danger btn-lg btn-block" role="button">
+        Или зарегистируйтесь с Google
+    </a>
+    <a href="{% url 'account_login' %}" class="mt-1">Уже имеете аккаунт?</a>
+</form>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base/default.html' %}
+
+{% block content %}
+<div class="col-12 mt-3 post border border-dark rounded-3 d-flex flex-column">
+    <div class="container">
+        <h2 class="nav-text">Вы действительно хотите удалить данный пост?</h2>
+            <div class="row-auto d-flex pb-3">
+                <a href="{% url 'table:categories' delete_post.postCategory.name %}" class="btn btn-dark d-flex align-items-center">#{{ delete_post.postCategory.name }}</a>
+                <div class="col-auto">
+                    <div class="d-flex align-items-center nav-text">{{ delete_post.author.userAuthor}}</div>
+                    <div class="d-flex align-items-center time-text">{{ delete_post.postDate|date:'d.m.Y'}}</div>
+                </div>
+            </div>
+        <div class="row-auto d-flex pb-2">
+            <a class="post-title link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' delete_post.id %}">{{ delete_post.title }}</a>
+        </div>
+        {% if delete_post.description %}
+            <div class="row-auto d-flex">
+                <a class="post-text link-opacity-25-hover link-underline-dark pb-3" href="{% url 'table:post' delete_post.id %}">{{ delete_post.description }}</a>
+            </div>
+        {% endif %}
+    </div>
+        <img src="{{ delete_post.preview_image.url }}" class="img-fluid" alt="">
+        <div class="container">
+            <div class="row-auto d-flex pt-3 justify-content-start align-items-center" id="info_menu">
+                <div class="d-flex pe-2 align-items-center nav-text">
+                    <span class="bi bi-person-hearts" style="color: darkgray; width: 18px; font-size: 16px"></span>
+                    {{ delete_post.postRating }}
+                </div>
+                <div class="d-flex align-items-center nav-text">
+                    <span class="pe-1 bi bi-chat-square-text"></span>
+                    {{ delete_post.comments.all|length }}
+                </div>
+            </div>
+        </div>
+        <form method="post" action="">
+          {% csrf_token %}
+          <br>
+          <input class="btn btn-success" type="submit" value="Удалить!">
+        </form>
+</div>
+
+
+{% endblock content %}

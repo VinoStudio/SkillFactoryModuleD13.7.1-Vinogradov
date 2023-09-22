@@ -1,0 +1,11 @@
+{% if post.author.userAuthor.id == request.user.id %}
+
+<div class="dropdown">
+    <a class="btn btn-sm btn-secondary rounded-circle dropdown-toggle" id="navDropdown1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"></a>
+    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+        <li><a class="dropdown-item" href="{% url 'table:update' post.id %}">Редактировать</a></li>
+        <li><a class="dropdown-item" href="{% url 'table:delete' post.id %}">Удалить</a></li>
+    </ul>
+</div>
+
+{% endif %}
